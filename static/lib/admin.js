@@ -1,8 +1,8 @@
 'use strict';
 
 define('admin/plugins/email-blacklist', [
-	'settings', 'alerts',
-], function (settings, alerts) {
+	'settings',
+], function (settings) {
 	var ACP = {};
 
 	ACP.init = function () {
@@ -11,17 +11,7 @@ define('admin/plugins/email-blacklist', [
 	};
 
 	function saveSettings() {
-		settings.save('email-blacklist', $('.email-blacklist-settings'), function () {
-			alerts.alert({
-				type: 'success',
-				alert_id: 'email-blacklist-saved',
-				title: 'Settings Saved',
-				message: 'Please reload your NodeBB to apply these settings',
-				clickfn: function () {
-					socket.emit('admin.reload');
-				},
-			});
-		});
+		settings.save('email-blacklist', $('.email-blacklist-settings'));
 	}
 
 	return ACP;

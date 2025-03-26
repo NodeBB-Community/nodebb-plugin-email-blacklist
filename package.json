@@ -5,16 +5,16 @@
   "main": "library.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Annihil/nodebb-plugin-email-blacklist.git"
+    "url": "git+https://github.com/NodeBB-Community/nodebb-plugin-email-blacklist.git"
   },
   "author": "Annihil",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Annihil/nodebb-plugin-email-blacklist/issues"
+    "url": "https://github.com/NodeBB-Community/nodebb-plugin-email-blacklist/issues"
   },
-  "homepage": "https://github.com/Annihil/nodebb-plugin-email-blacklist#readme",
+  "homepage": "https://github.com/NodeBB-Community/nodebb-plugin-email-blacklist#readme",
   "nbbpm": {
-    "compatibility": "^3.2.0"
+    "compatibility": "^3.2.0 || ^4.0.0"
   },
   "devDependencies": {
     "eslint": "8.57.0",

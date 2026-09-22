@@ -47,10 +47,31 @@ Plugin.filterEmailUpdate = async function (data) {
 	return data;
 };
 
+// Turn a blacklist entry that contains * into an anchored regex. Everything
+// except * is escaped, and * becomes .* so one entry can span any number of
+// labels: *.theindexer.* matches a.theindexer.app and b.theindexer.com.
+function wildcardToRegExp(pattern) {
+	const source = pattern
+		.split('*')
+		.map(part => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+		.join('.*');
+	return new RegExp(`^${source}$`);
+}
+
 function isBlacklistedDomain(email, domains = '') {
-	const emailDomain = String(email).substring(email.indexOf('@') + 1);
-	const domainBlacklist = (domains || '').split('\n').map(line => line.trim());
-	return domainBlacklist.includes(emailDomain);
+	const address = String(email);
+	// Domains are case insensitive, so compare both sides in lower case.
+	const emailDomain = address.substring(address.indexOf('@') + 1).toLowerCase();
+	const domainBlacklist = (domains || '')
+		.split('\n')
+		.map(line => line.trim().toLowerCase())
+		.filter(Boolean); // an empty line must never become a match-all
+	return domainBlacklist.some((pattern) => {
+		if (!pattern.includes('*')) {
+			return pattern === emailDomain;
+		}
+		return wildcardToRegExp(pattern).test(emailDomain);
+	});
 }
 
 function isTempMail(email) {

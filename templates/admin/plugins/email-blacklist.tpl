@@ -6,7 +6,7 @@
       <form role="form" class="email-blacklist-settings">
         <fieldset>
             <div class="form-group">
-                <textarea class="form-control" rows="6" id="domains" name="domains" placeholder="Enter email domains (one per line)"></textarea>
+                <textarea class="form-control" rows="6" id="domains" name="domains" placeholder="Enter email domains (one per line). * is a wildcard, e.g. *.theindexer.*"></textarea>
             </div>
             <!-- <div class="checkbox"><label><input type="checkbox" id="isTempMailEnabled" name="isTempMailEnabled"/> Enable isTempMail API check</label></div> -->
 

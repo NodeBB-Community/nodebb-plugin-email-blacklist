@@ -22,13 +22,13 @@ Plugin.load = async function (params) {
 };
 
 Plugin.onEmailSave = async (data) => {
-	const pluginSettings = await meta.settings.get(pluginData.nbbId);
-	if (isBlacklistedDomain(data.email, pluginSettings.domains)) {
-		throw new Error('Blacklisted email provider.');
-	}
+	if (data && data.email) {
+		const pluginSettings = await meta.settings.get(pluginData.nbbId);
+		checkDomain(data.email, pluginSettings);
 
-	if (pluginSettings.isTempMailEnabled === 'on' && !await isTempMail(data.email)) {
-		throw new Error('Blacklisted email provider.');
+		if (pluginSettings.isTempMailEnabled === 'on' && !await isTempMail(data.email)) {
+			throw new Error('Blacklisted email provider.');
+		}
 	}
 
 	return data;
@@ -37,9 +37,7 @@ Plugin.onEmailSave = async (data) => {
 Plugin.filterEmailUpdate = async function (data) {
 	if (data && data.email) {
 		const pluginSettings = await meta.settings.get(pluginData.nbbId);
-		if (isBlacklistedDomain(data.email, pluginSettings.domains)) {
-			throw new Error('Blacklisted email provider.');
-		}
+		checkDomain(data.email, pluginSettings);
 		if (pluginSettings.isTempMailEnabled === 'on') {
 			return await isTempMail(data.email);
 		}
@@ -47,10 +45,56 @@ Plugin.filterEmailUpdate = async function (data) {
 	return data;
 };
 
-function isBlacklistedDomain(email, domains = '') {
-	const emailDomain = String(email).substring(email.indexOf('@') + 1);
-	const domainBlacklist = (domains || '').split('\n').map(line => line.trim());
-	return domainBlacklist.includes(emailDomain);
+function checkDomain(email, pluginSettings = {}) {
+	const emailDomain = getEmailDomain(email);
+	const matchSubdomains = isEnabled(pluginSettings.matchSubdomains);
+
+	if (matchesDomainList(emailDomain, pluginSettings.domains, matchSubdomains)) {
+		throw new Error('Blacklisted email provider.');
+	}
+
+	const whitelist = parseDomainList(pluginSettings.whitelist);
+	if (whitelist.length && !matchesDomainList(emailDomain, whitelist, matchSubdomains)) {
+		throw new Error('Email provider not allowed.');
+	}
+}
+
+function getEmailDomain(email) {
+	const str = String(email);
+	return normalizeDomain(str.substring(str.lastIndexOf('@') + 1));
+}
+
+function normalizeDomain(domain) {
+	return String(domain).trim().toLowerCase()
+		.replace(/^[@*.]+/, '')
+		.replace(/\.$/, '');
+}
+
+// accepts "example.com", "@example.com", and "*.example.com" / ".example.com"
+// (the last two always match subdomains)
+function parseDomainList(domains) {
+	if (Array.isArray(domains)) {
+		return domains;
+	}
+	return String(domains || '').split(/\r?\n/).map((line) => {
+		const entry = line.trim().toLowerCase();
+		return {
+			domain: normalizeDomain(entry),
+			wildcard: entry.startsWith('*.') || entry.startsWith('.'),
+		};
+	}).filter(entry => entry.domain);
+}
+
+function matchesDomainList(emailDomain, domains, matchSubdomains) {
+	if (!emailDomain) {
+		return false;
+	}
+	return parseDomainList(domains).some(({ domain, wildcard }) => emailDomain === domain ||
+		((matchSubdomains || wildcard) && emailDomain.endsWith(`.${domain}`)));
+}
+
+function isEnabled(value) {
+	return value === true || value === 1 || ['true', 'on', '1'].includes(String(value));
 }
 
 function isTempMail(email) {

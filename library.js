@@ -20,11 +20,7 @@ Plugin.load = async function (params) {
 };
 
 Plugin.onEmailSave = async (data) => {
-	const pluginSettings = await meta.settings.get(pluginData.nbbId);
-	if (isBlacklistedDomain(data.email, pluginSettings.domains)) {
-		winston.info(`Blacklisted email provider: ${data.email}, uid: ${data.uid}`);
-		throw new Error('[[email-blacklist:blacklisted-email-provider]]');
-	}
+	await enforceEmailBlacklist(data.email, data.uid);
 
 	return data;
 };
@@ -32,14 +28,18 @@ Plugin.onEmailSave = async (data) => {
 Plugin.filterEmailUpdate = async function (hookData) {
 	const { uid, data } = hookData;
 	if (data && data.email) {
-		const pluginSettings = await meta.settings.get(pluginData.nbbId);
-		if (isBlacklistedDomain(data.email, pluginSettings.domains)) {
-			winston.info(`Blacklisted email provider: ${data.email}, uid: ${uid}`);
-			throw new Error('[[email-blacklist:blacklisted-email-provider]]');
-		}
+		await enforceEmailBlacklist(data.email, uid);
 	}
 	return hookData;
 };
+
+async function enforceEmailBlacklist(email, uid) {
+	const pluginSettings = await meta.settings.get(pluginData.nbbId);
+	if (isBlacklistedDomain(email, pluginSettings.domains)) {
+		winston.info(`Blacklisted email provider: ${email}, uid: ${uid}`);
+		throw new Error('[[email-blacklist:blacklisted-email-provider]]');
+	}
+}
 
 function isBlacklistedDomain(email, domains = '') {
 	const emailDomain = String(email).substring(email.indexOf('@') + 1).trim().toLowerCase();

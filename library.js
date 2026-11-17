@@ -47,8 +47,8 @@ function isBlacklistedDomain(email, domains = '') {
 		.map(line => line.trim().toLowerCase())
 		.filter(Boolean);
 
-	return domainBlacklist.some(domain =>
-		emailDomain === domain || emailDomain.endsWith(`.${domain}`)
+	return domainBlacklist.some(
+		domain => emailDomain === domain || emailDomain.endsWith(`.${domain}`)
 	);
 }
 

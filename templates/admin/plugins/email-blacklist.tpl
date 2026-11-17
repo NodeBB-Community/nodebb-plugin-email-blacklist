@@ -8,8 +8,6 @@
             <div class="form-group">
                 <textarea class="form-control" rows="6" id="domains" name="domains" placeholder="Enter email domains (one per line)"></textarea>
             </div>
-            <!-- <div class="checkbox"><label><input type="checkbox" id="isTempMailEnabled" name="isTempMailEnabled"/> Enable isTempMail API check</label></div> -->
-
         </fieldset>
       </form>
 		</div>

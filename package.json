@@ -7,6 +7,9 @@
     "type": "git",
     "url": "git+https://github.com/NodeBB-Community/nodebb-plugin-email-blacklist.git"
   },
+  "scripts": {
+    "lint": "eslint ."
+  },
   "author": "Annihil",
   "license": "MIT",
   "bugs": {
@@ -14,11 +17,10 @@
   },
   "homepage": "https://github.com/NodeBB-Community/nodebb-plugin-email-blacklist#readme",
   "nbbpm": {
-    "compatibility": "^3.2.0 || ^4.0.0"
+    "compatibility": "^4.15.0"
   },
   "devDependencies": {
-    "eslint": "8.57.0",
-    "eslint-config-nodebb": "0.2.1",
-    "eslint-plugin-import": "2.29.1"
+    "eslint": "10.15.0",
+    "eslint-config-nodebb": "^2.0.2"
   }
 }

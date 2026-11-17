@@ -13,5 +13,6 @@
     ],
 	"modules": {
 		"../admin/plugins/email-blacklist.js": "./static/lib/admin.js"
-	}
+	},
+    "languages": "languages"
 }

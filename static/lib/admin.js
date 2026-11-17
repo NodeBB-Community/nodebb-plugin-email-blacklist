@@ -3,7 +3,7 @@
 define('admin/plugins/email-blacklist', [
 	'settings',
 ], function (settings) {
-	var ACP = {};
+	const ACP = {};
 
 	ACP.init = function () {
 		settings.load('email-blacklist', $('.email-blacklist-settings'));

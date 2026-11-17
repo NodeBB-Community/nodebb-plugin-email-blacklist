@@ -3,6 +3,7 @@
 const pluginData = require('./plugin.json');
 
 const meta = nodebb.require('./src/meta');
+const winston = nodebb.require('winston');
 
 const Plugin = module.exports;
 
@@ -21,20 +22,23 @@ Plugin.load = async function (params) {
 Plugin.onEmailSave = async (data) => {
 	const pluginSettings = await meta.settings.get(pluginData.nbbId);
 	if (isBlacklistedDomain(data.email, pluginSettings.domains)) {
+		winston.info(`Blacklisted email provider: ${data.email}, uid: ${data.uid}`);
 		throw new Error('[[email-blacklist:blacklisted-email-provider]]');
 	}
 
 	return data;
 };
 
-Plugin.filterEmailUpdate = async function (data) {
+Plugin.filterEmailUpdate = async function (hookData) {
+	const { uid, data } = hookData;
 	if (data && data.email) {
 		const pluginSettings = await meta.settings.get(pluginData.nbbId);
 		if (isBlacklistedDomain(data.email, pluginSettings.domains)) {
+			winston.info(`Blacklisted email provider: ${data.email}, uid: ${uid}`);
 			throw new Error('[[email-blacklist:blacklisted-email-provider]]');
 		}
 	}
-	return data;
+	return hookData;
 };
 
 function isBlacklistedDomain(email, domains = '') {
